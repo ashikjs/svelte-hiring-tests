@@ -1,15 +1,79 @@
 <script lang="ts">
-    interface CarouselItem {
-        id: string;
-        src: string;
-        alt: string;
-    }
+  import {onMount} from "svelte";
 
-    export let items: CarouselItem[] = [];
+  interface CarouselItem {
+    id: string;
+    src: string;
+    alt: string;
+  }
+
+  export let items: CarouselItem[] = [
+    {id: '1', src: 'https://picsum.photos/1200/680', alt: 'Slider 1'},
+    {id: '2', src: 'https://picsum.photos/1200/680', alt: 'Slider 2'},
+    {id: '3', src: 'https://picsum.photos/1200/680', alt: 'Slider 3'},
+    {id: '4', src: 'https://picsum.photos/1200/680', alt: 'Slider 4'},
+    {id: '5', src: 'https://picsum.photos/1200/680', alt: 'Slider 5'}
+  ];
+
+  // State variable
+  let currentIndex = 0
+  let totalItems = items.length
+  let interval: NodeJS.Timer
+
+  // All Controls function
+  function nextSlider() {
+    currentIndex = (currentIndex + 1 > totalItems - 1) ? 0 : currentIndex + 1
+    clearInterval(interval)
+  }
+
+  function previousSlider() {
+    currentIndex = (currentIndex - 1 < 0 ? totalItems - 1 : currentIndex - 1)
+    clearInterval(interval)
+  }
+
+  function goToSlide(index: number) {
+    currentIndex = index
+    clearInterval(interval)
+  }
+
+  // Auto-slide
+  onMount(() => {
+    interval = setInterval(() => {
+      currentIndex = (currentIndex + 1 > totalItems - 1) ? 0 : currentIndex + 1
+    }, 2000)
+
+    return () => clearInterval(interval)
+  })
+
 </script>
 
 <div class="carousel">
     <!-- Carousel structure goes here -->
+    <div class="carousel__container">
+        <div class="carousel__track" style="transform: translateX(-{currentIndex * 100}%)">
+            {#each items as {id, src, alt}}
+                <div class="carousel__slide" key={id}>
+                    <img class="carousel__image" src={src} alt={alt}>
+                </div>
+            {/each}
+        </div>
+    </div>
+    <!-- Carousel arrow/navigation goes here -->
+    <div class="carousel__arrow carousel__arrow--left" on:click={previousSlider}>
+        &#x3C;
+    </div>
+    <div class="carousel__arrow carousel__arrow--right" on:click={nextSlider}>
+        &#x3E;
+    </div>
+
+    <!-- Dot Indicators  -->
+    <div class="carousel__dots">
+        {#each Array(totalItems) as _, index}
+            <button type="button"
+                    class="carousel__dot {index === currentIndex ? 'carousel__dot--active' : ''}"
+                    on:click={() => goToSlide(index)}></button>
+        {/each}
+    </div>
 </div>
 
 <style>

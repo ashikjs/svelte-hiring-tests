@@ -1,52 +1,133 @@
 <script lang="ts">
-    // TODO: Implement form state management
-    // TODO: Implement form validation
-    // TODO: Implement submit handler
-    // TODO: Implement success state management
+  import type {FormErrors, UserFormData} from "src/app";
+
+  // TODO: Implement form state management
+  let registrationFormData: UserFormData = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: ''
+  }
+  let successMessage = ''
+
+
+  // TODO: Implement form validation
+  let registrationFormErrors: FormErrors = {}
+
+  function isValidUserData(user: UserFormData) {
+    let error: FormErrors = {}
+    if (!user.firstName) error.firstName = 'First Name is required'
+    if (!user.lastName) error.lastName = 'Last Name is required'
+    if (!user.email) {
+      error.email = 'Email is required'
+    } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(user.email)) {
+      error.email = 'Enter a valid email'
+    }
+    if (!user.password) {
+      error.password = 'Password is required'
+    } else if (user.password?.length < 6) {
+      error.password = 'Password must be at least 6 characters long'
+    }
+
+    registrationFormErrors = error
+
+    return Object.keys(error).length === 0
+  }
+
+  function clearSuccessMessage() {
+    successMessage = ''
+  }
+
+  // TODO: Implement submit handler
+  function registrationFormSubmit(event: Event) {
+    event.preventDefault()
+
+    if (isValidUserData(registrationFormData)) {
+      successMessage = `
+            <div class="success-message">
+                <h3>Successfully submitted:</h3>
+                <p>First Name: ${registrationFormData.firstName}</p>
+                <p>Last Name: ${registrationFormData.lastName}</p>
+                <p>Email: ${registrationFormData.email}</p>
+            </div>
+            `
+      registrationFormData = {firstName: '', LastName: '', email: '', password: ''}
+      registrationFormErrors = {}
+    }
+  }
+
+  // TODO: Implement success state management
 </script>
 
 <div class="form-container">
-    <form>
+    <form on:submit|preventDefault={registrationFormSubmit}>
         <div class="form-group">
             <label for="firstName">First Name</label>
             <input
-                id="firstName"
-                type="text"
-                placeholder="Enter your first name"
+                    id="firstName"
+                    type="text"
+                    placeholder="Enter your first name"
+                    bind:value={registrationFormData.firstName}
+                    class:error={registrationFormErrors.firstName}
+                    on:input={clearSuccessMessage}
             />
+            {#if registrationFormErrors.firstName}
+                <span class="error-message">{registrationFormErrors.firstName}</span>
+            {/if}
         </div>
 
         <div class="form-group">
             <label for="lastName">Last Name</label>
             <input
-                id="lastName"
-                type="text"
-                placeholder="Enter your last name"
+                    id="lastName"
+                    type="text"
+                    placeholder="Enter your last name"
+                    bind:value={registrationFormData.lastName}
+                    class:error={registrationFormErrors.lastName}
+                    on:input={clearSuccessMessage}
             />
+            {#if registrationFormErrors.lastName}
+                <span class="error-message">{registrationFormErrors.lastName}</span>
+            {/if}
         </div>
 
         <div class="form-group">
             <label for="email">Email</label>
             <input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    bind:value={registrationFormData.email}
+                    class:error={registrationFormErrors.email}
+                    on:input={clearSuccessMessage}
             />
+            {#if registrationFormErrors.email}
+                <span class="error-message">{registrationFormErrors.email}</span>
+            {/if}
         </div>
 
         <div class="form-group">
             <label for="password">Password</label>
             <input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
+                    id="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    bind:value={registrationFormData.password}
+                    class:error={registrationFormErrors.password}
+                    on:input={clearSuccessMessage}
             />
+            {#if registrationFormErrors.password}
+                <span class="error-message">{registrationFormErrors.password}</span>
+            {/if}
         </div>
 
         <button type="submit" class="submit-button">Submit</button>
     </form>
 
     <!-- TODO: Add success message section here -->
+    {#if successMessage}
+        <div class="success-message" on:click={clearSuccessMessage}>{@html successMessage}</div>
+    {/if}
 </div>
 
 <style>

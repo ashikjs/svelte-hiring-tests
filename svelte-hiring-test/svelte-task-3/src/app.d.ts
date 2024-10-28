@@ -2,6 +2,11 @@
 // for information about these interfaces
 declare global {
 	namespace App {
+		interface Item {
+			id: number,
+			title: string,
+			description: string
+		}
 		// interface Error {}
 		// interface Locals {}
 		// interface PageData {}
